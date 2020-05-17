@@ -2,10 +2,18 @@
   "dependencies": {
     "@babel/preset-react": "^7.9.4",
     "@rails/webpacker": "4.2.2",
+    "axios": "^0.19.2",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "bourbon": "^7.0.0",
+    "node-sass": "^4.14.1",
+    "pretty-checkbox": "^3.0.3",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "react-heart-checkbox": "^0.0.4",
+    "react-icons": "^3.10.0",
+    "recoil": "^0.0.7",
+    "styled-components": "^5.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
