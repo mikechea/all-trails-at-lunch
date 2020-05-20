@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import styled, { css } from 'styled-components'
-import { BsHeart } from "react-icons/bs";
+import { BsHeart, BsHeartFill } from "react-icons/bs";
 
 import stars from '../stars'
+import moneySigns from '../moneySigns'
 
 import {
   placesState,
   selectedCardState,
   itemWithID
 } from '../atoms.js'
+
+import { useLocalStorage } from '../helper'
 
 import {
   RecoilRoot,
@@ -69,14 +72,10 @@ function MobileCard(props) {
     setSelectedPlace(place)
   }
 
-  const { name, user_ratings_total, photos, id, rating } = place
+  const { name, user_ratings_total, photos, id, rating, price_level, opening_hours, vicinity } = place
 
   const selected = selectedPlace.id === place.id
-
-  // function async countStars () {
-  //   let stars = await import(`.../stars/${Math.round(rating)}-stars.png`);
-  // }
-
+  
   return (
     <Card 
       key={id}
@@ -86,9 +85,10 @@ function MobileCard(props) {
         <CardInfo>
           <RestaurantName>{name}</RestaurantName>
           <Text><img src={stars[Math.round(rating)] } style={{height: '.8rem'}} /> ({user_ratings_total})</Text>
-          <Text>$ • Supporting Text</Text>
+          <Text>{moneySigns[price_level]} • {vicinity}</Text>
         </CardInfo>
-        <BsHeart size={25} color={'grey'} style={{ marginLeft: 'auto', marginBottom: 'auto'}}/>
+        {!favorites.includes(id) && <BsHeart onClick={saveFavorite} size={25} color={'grey'} style={{ marginLeft: 'auto', marginBottom: 'auto'}}/>}
+        {favorites.includes(id) && <BsHeartFill onClick={removeFavorite} size={25} color={'green'} style={{ marginLeft: 'auto', marginBottom: 'auto'}}/>}
     </Card>
   )
 }

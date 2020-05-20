@@ -145,16 +145,16 @@ function Header(props) {
             content={(
                 <StyledPopover>
                   <div onClick={() => setLocalFilter('desc')}>
-                    {descending ? <FaCheckCircle /> : <MdRadioButtonUnchecked/>}
+                    {descending ? <FaCheckCircle color={'green'}/> : <MdRadioButtonUnchecked/>}
                     Ratings High To Low
                   </div>
                   <div onClick={() => setLocalFilter('asc')}>
-                    {!descending ? <FaCheckCircle /> : <MdRadioButtonUnchecked/>}
+                    {!descending ? <FaCheckCircle color={'green'}/> : <MdRadioButtonUnchecked/>}
                     Ratings Low To High
                   </div>
                   <div 
                     onClick={handleApplyClick}
-                    style={{ color: '#428A13', cursor: 'pointer'}}
+                    style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', height: '100%', }}
                   >
                     Apply
                   </div>

@@ -61,7 +61,7 @@ function compareRatingsDescending(a, b) {
 
 const containerStyle = {
   position: 'relative',
-  flex: 4,
+  flex: 5,
   height: '100vh'
 }
 
@@ -90,18 +90,18 @@ function AllTrailsEats() {
 
   useEffect(() => {
     // could be a selector
-    // async function fetchData() {
-    //   const response = await axios.get('https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
-    //     params: {
-    //       keyword: searchTerm,
-    //       location: DEFAULT_COORDINATES,
-    //       radius: 1500,
-    //       type: RESTAURANT,
-    //       key: 'AIzaSyDpEr8NpgU_ERTJw6tm1nmGrpUZozM-oQE',
-    //       fields: 'name,price_level,rating,user_ratings_total,geometry,photos'
-    //     }
-    //   })
-      const response = placesJSON
+    async function fetchData() {
+      const response = await axios.get('https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
+        params: {
+          keyword: searchTerm,
+          location: DEFAULT_COORDINATES,
+          radius: 1500,
+          type: RESTAURANT,
+          key: 'AIzaSyDpEr8NpgU_ERTJw6tm1nmGrpUZozM-oQE',
+          fields: 'name,price_level,rating,user_ratings_total,geometry,photos,price_level,opening_hours'
+        }
+      })
+      // const response = placesJSON
       const data = response.data.results
 
       data.forEach((place => {
@@ -110,9 +110,9 @@ function AllTrailsEats() {
 
       setPlaces(data.sort(compareRatingsDescending))
       setSelectedPlace(data[0])
-    // }
+    }
 
-    // fetchData();
+    fetchData();
   }, [searchTerm]); // Or [] if effect doesn't need props or state
 
   const desktopView = (
@@ -162,7 +162,7 @@ function AllTrailsEats() {
     )
   }
   
-  
+  debugger
   return (
     <Fragment>
       <Header />

@@ -8,7 +8,10 @@ import {
 } from 'recoil';
 import { Map, GoogleApiWrapper, Marker, InfoWindow, InfoMarker } from 'google-maps-react';
 import darkPin from './darkPin.png'
+import greenPin from './greenPin.png'
+
 import stars from '../stars'
+import moneySigns from '../moneySigns'
 
 import {
   Card,
@@ -21,7 +24,6 @@ import {
   locationState,
   selectedCardState,
   filterState,
-  searchTermState,
   itemWithID
 } from '../atoms.js'
 
@@ -32,8 +34,7 @@ function MapContainer(props) {
   const [markerInfo, setMarkerInfo] = useState(null)
 
   function updateSelection(props, marker, e, place) {
-    debugger
-    setSelectedPlace(place.id)
+    setSelectedPlace(place)
     setMarkerInfo(marker)
   }
 
@@ -42,9 +43,9 @@ function MapContainer(props) {
                         key={place.id}
                         name={place.name}
                         position={place.geometry.location}
-                        onClick={(props, marker, e, place) => updateSelection(props, marker, e, place)}
+                        onClick={(props, marker, e) => updateSelection(props, marker, e, place)}
                         icon={{
-                          url: darkPin,
+                          url: (place.id === selectedPlace.id ? greenPin : darkPin),
                           anchor: new google.maps.Point(16,16),
                           scaledSize: new google.maps.Size(40,40)
                         }} />
@@ -52,7 +53,7 @@ function MapContainer(props) {
                   )
 
   const selectedMarker = markers.find((marker) => { return marker.key === selectedPlace.id })
-
+  
   return (
     <Map
       google={props.google}
@@ -70,12 +71,14 @@ function MapContainer(props) {
           lng: selectedMarker.props.position.lng 
         }}
         visible={true}>
-          {/* <img style={{width: '64px', height: '64px'}} src={`https://maps.googleapis.com/maps/api/place/photo?photoreference=${photos[0].photo_reference}&maxwidth=64&maxheight=64&key=AIzaSyDpEr8NpgU_ERTJw6tm1nmGrpUZozM-oQE`}></img> */}
-          <CardInfo>
-            <RestaurantName>{selectedPlace.name}</RestaurantName>
-            <Text><img src={stars[Math.round(selectedPlace.rating)]} style={{height: '15px'}} /> ({selectedPlace.user_ratings_total})</Text>
-            <Text>$ • Supporting Text</Text>
-          </CardInfo>
+          <div style={{display: 'flex', rowDirection: 'row', alignItems: 'center'}}>
+            <img style={{width: '64px', height: '64px'}} src={`https://maps.googleapis.com/maps/api/place/photo?photoreference=${selectedPlace.photos[0].photo_reference}&maxwidth=64&maxheight=64&key=AIzaSyDpEr8NpgU_ERTJw6tm1nmGrpUZozM-oQE`}></img>
+            <CardInfo>
+              <RestaurantName>{selectedPlace.name}</RestaurantName>
+              <Text><img src={stars[Math.round(selectedPlace.rating)]} style={{height: '15px'}} /> ({selectedPlace.user_ratings_total})</Text>
+              <Text>{moneySigns[selectedPlace.price_level]} • {selectedPlace.vicinity}</Text>
+            </CardInfo>
+          </div>
       </InfoWindow>}
     </Map>
   );

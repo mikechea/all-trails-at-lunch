@@ -29,7 +29,7 @@ export const filterState = atom({
 });
 
 export const searchTermState = atom({
-  key: 'filterState', // unique ID (with respect to other atoms/selectors)
+  key: 'searchTermState', // unique ID (with respect to other atoms/selectors)
   default: '', // default value (aka initial value)
 })
 

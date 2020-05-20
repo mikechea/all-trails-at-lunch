@@ -15,7 +15,6 @@ import {
   locationState,
   selectedCardState,
   filterState,
-  searchTermState,
   itemWithID
 } from '../atoms.js'
 
@@ -27,7 +26,7 @@ const List = styled.div`
   overflow: scroll;
   height: 100vh;
   flex-direction: column;
-  flex: 1;
+  flex: 2;
 
   ${props => useRecoilValue(filterState) === 'asc' && css`
     flex-direction: column-reverse;`
