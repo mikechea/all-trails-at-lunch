@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import {
   RecoilRoot,
   atom,
@@ -7,117 +7,178 @@ import {
   useRecoilValue,
 } from 'recoil';
 import axios from 'axios';
+import Media from 'react-media';
+import styled, { css } from 'styled-components'
 
 import CardList from '../CardList'
 import MobileCard from '../card'
+import Header from '../Header'
+import { placesJSON } from './places_example.js'
+import Map from '../Map'
 
-import { placesState, locationState } from '../atoms.js'
+import list from './list.png'
+import pin from './pin.png'
+
+import { 
+  placesState,
+  locationState,
+  selectedCardState,
+  searchTermState,
+  currentViewState,
+  itemWithID
+} from '../atoms.js'
 
 const RESTAURANT = 'restaurant'
 const DEFAULT_COORDINATES = '37.791320,-122.406317'
 
-// function CharacterCount() {
-//   // grabs just the value
-//   const count = useRecoilValue(charCountState);
+const StaticButton = styled.div`
+  position:fixed;
+  right: 50%;
+  bottom: 100%;
+`
 
-//   return <>Character Count: {count}</>;
-// }
-
-// // selector is like computed from mobx
-// const charCountState = selector({
-//   key: 'charCountState', // unique ID (with respect to other atoms/selectors)
-//   get: ({get}) => {
-//     const text = get(textState);
-
-//     return text.length;
+// const sortedPlaces = selector({
+//   key: 'sortedPlace',
+//   get: ({ get }) => {
+//     const unsortedPlaces = get(placesState)
+//     return unsortedPlaces.sort(compareRatingsAscending)
 //   },
 // });
 
-// // sets the state of atoms
-// const textState = atom({
-//   key: 'textState', // unique ID (with respect to other atoms/selectors)
-//   default: '', // default value (aka initial value)
-// });
+function compareRatingsAscending(a, b) {
+  const ratingA = a.rating
+  const ratingB = b.rating
 
-// function CharacterCounter() {
-//   return (
-//     <div>
-//       <TextInput />
-//       <CharacterCount />
-//     </div>
-//   );
-// }
-
-// function TextInput() {
-//   const [text, setText] = useRecoilState(textState);
-
-//   const onChange = (event) => {
-//     setText(event.target.value);
-//   };
-
-//   return (
-//     <div>
-//       <input type="text" value={text} onChange={onChange} />
-//       <br />
-//       Echo: {text}
-//     </div>
-//   );
-// }
-
-// function getLocation() {
-//   if (navigator.geolocation) {
-//     const location = navigator.geolocation.getCurrentPosition();
-//     const {  }
-//     const coordinateString = `${location},${location}`
-//   }else{
-//     return '37.791320,-122.406317'
-//   }
-// }
-
-function Location() {
-  return(
-    <p>
-      {useRecoilValue(locationState)}
-    </p>
-  )
+  return ratingA - ratingB
 }
 
+function compareRatingsDescending(a, b) {
+  const ratingA = a.rating
+  const ratingB = b.rating
+
+  return ratingB - ratingA
+}
+
+const containerStyle = {
+  position: 'relative',
+  flex: 4,
+  height: '100vh'
+}
+
+const StyleButton = styled.div`
+  display: flex;
+  font-family: inherit;
+  position: absolute;
+  z-index: 1000;
+  right: 40%;
+  top: 85%;
+  width: 15%;
+  padding: .5rem;
+  background-color: #428A13;
+  color: white;
+  font-weight: 900;
+  border-radius: 6px;
+  align-items: center;
+  justify-content: center;
+`
 
 function AllTrailsEats() {
   const [places, setPlaces] = useRecoilState(placesState)
-  
+  const [selectedPlace, setSelectedPlace] = useRecoilState(selectedCardState)
+  const [searchTerm, setSearchTerm] = useRecoilState(searchTermState)
+  const [currentView, setCurrentView] = useState('list')
+
   useEffect(() => {
-    async function fetchData() {
-      // You can await here
-      const response = await axios.get('https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
-        params: {
-          location: DEFAULT_COORDINATES,
-          radius: 1500,
-          type: RESTAURANT,
-          key: 'AIzaSyDpEr8NpgU_ERTJw6tm1nmGrpUZozM-oQE',
-          fields: 'name,price_level,rating,user_ratings_total,geometry,photos'
+    // could be a selector
+    // async function fetchData() {
+    //   const response = await axios.get('https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
+    //     params: {
+    //       keyword: searchTerm,
+    //       location: DEFAULT_COORDINATES,
+    //       radius: 1500,
+    //       type: RESTAURANT,
+    //       key: 'AIzaSyDpEr8NpgU_ERTJw6tm1nmGrpUZozM-oQE',
+    //       fields: 'name,price_level,rating,user_ratings_total,geometry,photos'
+    //     }
+    //   })
+      const response = placesJSON
+      const data = response.data.results
+
+      data.forEach((place => {
+        itemWithID(place.id, place)
+      }))
+
+      setPlaces(data.sort(compareRatingsDescending))
+      setSelectedPlace(data[0])
+    // }
+
+    // fetchData();
+  }, [searchTerm]); // Or [] if effect doesn't need props or state
+
+  const desktopView = (
+    <Fragment>
+      <CardList>
+        {
+          // use selector
+          places.map((place) => (
+            <MobileCard place={place} list={true}/>
+          ))
         }
-      })
+      </CardList>
+      <div style={containerStyle}>
+        <Map places={places}/>
+      </div>
+    </Fragment>
+  )
 
-      const data = response.data.results.map((place => {
-        return atom({key: place.id, default: place})
-       }))
-       
-      setPlaces(data)
-    }
+  let mobileView
 
-    fetchData();
-  }, []); // Or [] if effect doesn't need props or state
-
-
+  if(currentView === 'list'){
+    mobileView = (
+      <Fragment>
+        <CardList>
+          {
+            // use selector
+            places.map((place) => (
+              <MobileCard place={place} list={true}/>
+            ))
+          }
+        </CardList>
+        <StyleButton onClick={() => setCurrentView('map') }>
+          <span><img src={pin}/></span> <p>Map</p>
+        </StyleButton>
+      </Fragment>
+    )
+  }else{
+    mobileView = (
+      <Fragment>
+        <div style={containerStyle}>
+          <Map places={places}/>
+        </div>
+        <StyleButton onClick={() => setCurrentView('list') }>
+          <span><img src={list}/></span> <p>List</p>
+        </StyleButton>
+      </Fragment>
+    )
+  }
+  
+  
   return (
-    <CardList>
-      {
-        places.map((place) => (
-          <MobileCard id={place.key} key={place.key}/>
-        ))
-      }
-    </CardList>
+    <Fragment>
+      <Header />
+      <div style={{display: 'flex', flexDirection: 'row', width: '100vw', position: 'relative' }}>
+        <Media queries={{
+            small: "(max-width: 599px)",
+          }}>
+          {matches => (
+            <Fragment>
+              {matches.small && mobileView}
+              {!matches.small && desktopView}
+            </Fragment>
+          )}
+        </Media>
+      </div>
+    </Fragment>
   );
 }
 
